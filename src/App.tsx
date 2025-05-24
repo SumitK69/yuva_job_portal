@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +9,8 @@ import ThankYouPage from "./pages/ThankYouPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
-
+import React from "react";
+import JobFormNew from "./pages/JobFormNew";
 const queryClient = new QueryClient();
 
 const App = () => (

@@ -23,7 +23,7 @@ const AdminLogin = () => {
 
     try {
       // API call implementation
-      const response = await fetch(`${backend_url}/api/admin/login`, {
+      const response = await fetch(`${backend_url}/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,19 +37,6 @@ const AdminLogin = () => {
 
       const { token } = await response.json();
       localStorage.setItem("adminToken", token);
-
-      // Demo purpose code - commented out
-      // if (username === "admin" && password === "admin") {
-      //   // Simulate storing a token
-      //   localStorage.setItem("adminToken", "dummy-jwt-token");
-      //   toast({
-      //     title: "Login Successful",
-      //     description: "Welcome to the admin dashboard",
-      //   });
-      //   navigate("/admin/dashboard");
-      // } else {
-      //   throw new Error("Invalid credentials");
-      // }
 
       toast({
         title: "Login Successful",

@@ -1,21 +1,121 @@
+import React, { useState, useEffect } from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import SectorButton from "../components/SectorButton";
+import Logo from "../components/Logo";
 
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import SectorButton from '../components/SectorButton';
-import Logo from '../components/Logo';
+// API configuration
+const API_BASE_URL =
+  import.meta.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
-// These could be fetched from an API in a real application
-const sectors = [
-  { name: 'Cotton Mill', route: '/jobs/cotton-mill', image: '/placeholder.svg' },
-  { name: 'Jute Mill', route: '/jobs/jute-mill', image: '/placeholder.svg' },
-  { name: 'Cable Mill', route: '/jobs/cable-mill', image: '/placeholder.svg' },
-  { name: 'Amazon', route: '/jobs/amazon', image: '/placeholder.svg' },
-  { name: 'Flipkart', route: '/jobs/flipkart', image: '/placeholder.svg' },
-  { name: 'IT Sector', route: '/jobs/it-sector', image: '/placeholder.svg' },
-];
+// API service class
+class ApiService {
+  getAuthHeaders() {
+    const token = localStorage.getItem("authToken");
+    return {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+  }
 
-const HomePage = () => {
+  async fetchSectors() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sectors`, {
+        headers: this.getAuthHeaders(),
+      });
+      if (!response.ok)
+        throw new Error(`Failed to fetch sectors: ${response.statusText}`);
+      return response.json();
+    } catch (error) {
+      console.error("Error fetching sectors:", error);
+      throw error;
+    }
+  }
+
+  async createSector(name) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/sectors`, {
+        method: "POST",
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok)
+        throw new Error(`Failed to create sector: ${response.statusText}`);
+      return response.json();
+    } catch (error) {
+      console.error("Error creating sector:", error);
+      throw error;
+    }
+  }
+}
+
+const apiService = new ApiService();
+
+// Loading component
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo_dye"></div>
+  </div>
+);
+
+// Error component
+const ErrorMessage = ({ message, onRetry }) => (
+  <div className="text-center py-12">
+    <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+      <p className="text-red-600 mb-4">{message}</p>
+      <button
+        onClick={onRetry}
+        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+);
+
+const HomePageNew = () => {
+  const [sectors, setSectors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Function to transform API sector data to component format
+  const transformSectorData = (apiSectors) => {
+    return apiSectors.map((sector) => ({
+      id: sector.id,
+      name: sector.name,
+      route: `/jobs/${sector.name.toLowerCase().replace(/\s+/g, "-")}`,
+      image: sector.image || "/placeholder.svg",
+    }));
+  };
+
+  // Function to fetch sectors
+  const fetchSectors = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const apiSectors = await apiService.fetchSectors();
+      const transformedSectors = transformSectorData(apiSectors);
+      setSectors(transformedSectors);
+    } catch (err) {
+      console.error("Failed to fetch sectors:", err);
+      setError("Failed to load job sectors. Please try again.");
+      setSectors([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch sectors on component mount
+  useEffect(() => {
+    fetchSectors();
+  }, []);
+
+  // Retry function
+  const handleRetry = () => {
+    fetchSectors();
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-isabelline-800">
       <Header />
@@ -24,40 +124,75 @@ const HomePage = () => {
           <div className="flex justify-center mb-6">
             <Logo />
           </div>
-          <h1 className="text-4xl font-bold text-gunmetal mb-4">Welcome to Yuva Load Service</h1>
+          <h1 className="text-4xl font-bold text-gunmetal mb-4">
+            Welcome to Yuva Load Service
+          </h1>
           <p className="text-xl text-gunmetal-600 max-w-2xl mx-auto">
-            Discover career opportunities across various sectors. Submit your application with just a few clicks.
+            Discover career opportunities across various sectors. Submit your
+            application with just a few clicks.
           </p>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-gunmetal mb-6 text-center">Browse Jobs by Sector</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sectors.map((sector) => (
-              <SectorButton 
-                key={sector.name} 
-                sector={sector.name} 
-                route={sector.route} 
-                image={sector.image} 
-              />
-            ))}
-          </div>
+          <h2 className="text-2xl font-semibold text-gunmetal mb-6 text-center">
+            Browse Jobs by Sector
+          </h2>
+
+          {loading ? (
+            <LoadingSpinner />
+          ) : error ? (
+            <ErrorMessage message={error} onRetry={handleRetry} />
+          ) : sectors.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gunmetal-600 text-lg">
+                No job sectors available at the moment.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sectors.map((sector) => (
+                <SectorButton
+                  key={sector.id}
+                  sector={sector.name}
+                  route={sector.route}
+                  image={sector.image}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-gunmetal mb-4">Why Choose Yuva Load Service?</h2>
+          <h2 className="text-2xl font-semibold text-gunmetal mb-4">
+            Why Choose Yuva Load Service?
+          </h2>
           <div className="grid md:grid-cols-3 gap-6 mt-6">
             <div className="bg-isabelline-800 p-5 rounded-md">
-              <h3 className="text-xl font-medium text-indigo_dye mb-2">Diverse Opportunities</h3>
-              <p className="text-gunmetal-600">Access jobs across multiple industries and sectors all in one place.</p>
+              <h3 className="text-xl font-medium text-indigo_dye mb-2">
+                Diverse Opportunities
+              </h3>
+              <p className="text-gunmetal-600">
+                Access jobs across multiple industries and sectors all in one
+                place.
+              </p>
             </div>
             <div className="bg-isabelline-800 p-5 rounded-md">
-              <h3 className="text-xl font-medium text-indigo_dye mb-2">Simple Application</h3>
-              <p className="text-gunmetal-600">Our streamlined process makes it easy to submit your resume and details.</p>
+              <h3 className="text-xl font-medium text-indigo_dye mb-2">
+                Simple Application
+              </h3>
+              <p className="text-gunmetal-600">
+                Our streamlined process makes it easy to submit your resume and
+                details.
+              </p>
             </div>
             <div className="bg-isabelline-800 p-5 rounded-md">
-              <h3 className="text-xl font-medium text-indigo_dye mb-2">Career Growth</h3>
-              <p className="text-gunmetal-600">Find opportunities that match your experience level - from freshers to experienced professionals.</p>
+              <h3 className="text-xl font-medium text-indigo_dye mb-2">
+                Career Growth
+              </h3>
+              <p className="text-gunmetal-600">
+                Find opportunities that match your experience level - from
+                freshers to experienced professionals.
+              </p>
             </div>
           </div>
         </section>
@@ -67,4 +202,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomePageNew;
