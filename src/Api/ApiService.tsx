@@ -8,7 +8,7 @@ export interface Job {
 }
 
 export interface Applicant {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -89,14 +89,76 @@ class ApiService {
 
   // Applicants API
 
-  async createApplicant(applicant: Omit<Applicant, "id">): Promise<Applicant> {
-    const response = await fetch(`${API_BASE_URL}/jobs`, {
-      method: "POST",
-      headers: this.getAuthHeaders(),
-      body: JSON.stringify(applicant),
-    });
-    if (!response.ok) throw new Error("Failed to create job");
-    return response.json();
+  async uploadResume(file: File, email: string): Promise<{ fileUrl: string }> {
+    try {
+      // Validate inputs
+      if (!file) {
+        throw new Error("No file selected");
+      }
+      if (!email || email.trim() === "") {
+        throw new Error("Email is required");
+      }
+
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        throw new Error("Please provide a valid email address");
+      }
+
+      const formData = new FormData();
+      formData.append("file", file); // This matches the multer field name
+      formData.append("email", email.trim());
+
+      const response = await fetch(`${API_BASE_URL}/upload`, {
+        method: "POST",
+        body: formData,
+        // Note: Don't set Content-Type header when using FormData
+        // The browser will set it automatically with the correct boundary
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: Failed to upload resume`
+        );
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Upload failed");
+      }
+
+      return { fileUrl: result.fileUrl };
+    } catch (error) {
+      console.error("Resume upload error:", error);
+      throw error;
+    }
+  }
+  async createApplicant(applicant: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/applicants`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...this.getAuthHeaders(), // Spread auth headers
+        },
+        body: JSON.stringify(applicant),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `HTTP ${response.status}: Failed to submit application`
+        );
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Create applicant error:", error);
+      throw error;
+    }
   }
 
   async fetchApplicants(): Promise<Applicant[]> {

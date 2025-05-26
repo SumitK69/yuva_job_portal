@@ -41,6 +41,7 @@ const HomePage = () => {
       image: `${API_BASE_URL}${sector.image}`,
     }));
   };
+  console.log("Transformed sectors:", transformSectorData);
 
   // Function to fetch sectors
   const fetchSectors = async () => {

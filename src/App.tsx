@@ -4,13 +4,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
-import JobForm from "./pages/JobForm";
 import ThankYouPage from "./pages/ThankYouPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import React from "react";
-import JobFormNew from "./pages/JobFormNew";
+import JobForm from "./pages/JobForm";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -21,7 +20,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/jobs/:sector" element={<JobFormNew />} />
+          <Route path="/jobs/:sector" element={<JobForm />} />
           <Route path="/thankyou/:sector" element={<ThankYouPage />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

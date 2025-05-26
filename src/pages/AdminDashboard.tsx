@@ -160,6 +160,7 @@ const TempFile = () => {
       if (isNewJob) {
         // Add new job
         const newJob = await apiService.createJob({
+          id: "",
           title: currentJob.title,
           description: currentJob.description,
           sector: currentJob.sector,
@@ -230,7 +231,8 @@ const TempFile = () => {
   const deleteApplicant = async (id: string) => {
     try {
       await apiService.deleteApplicant(id);
-      setApplicants((prev) => prev.filter((applicant) => applicant.id !== id));
+      console.log(id, "deleted applicant");
+      setApplicants((prev) => prev.filter((applicant) => applicant._id !== id));
       toast({
         title: "Success",
         description: "Applicant removed successfully",
@@ -595,7 +597,7 @@ const TempFile = () => {
                       ) : (
                         applicants.map((applicant) => (
                           <tr
-                            key={applicant.id}
+                            key={applicant._id}
                             className="border-b hover:bg-[#f2efe8]"
                           >
                             <td className="p-3">{applicant.name}</td>
@@ -618,7 +620,7 @@ const TempFile = () => {
                               <Button
                                 variant="ghost"
                                 className="h-8 w-8 p-0 text-red-600"
-                                onClick={() => deleteApplicant(applicant.id)}
+                                onClick={() => deleteApplicant(applicant._id)}
                               >
                                 <span className="sr-only">Delete</span>
                                 <Trash2 className="h-4 w-4" />
@@ -639,7 +641,7 @@ const TempFile = () => {
                     ) : (
                       applicants.map((applicant) => (
                         <div
-                          key={applicant.id}
+                          key={applicant._id}
                           className="bg-white p-4 rounded-lg border shadow-sm"
                         >
                           <div className="flex justify-between">
@@ -663,7 +665,7 @@ const TempFile = () => {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   className="text-red-600"
-                                  onClick={() => deleteApplicant(applicant.id)}
+                                  onClick={() => deleteApplicant(applicant._id)}
                                 >
                                   <Trash2 className="mr-2 h-4 w-4" /> Delete
                                 </DropdownMenuItem>
