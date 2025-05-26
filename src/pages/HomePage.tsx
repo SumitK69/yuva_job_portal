@@ -3,53 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SectorButton from "../components/SectorButton";
 import Logo from "../components/Logo";
-
-// API configuration
-const API_BASE_URL =
-  import.meta.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
-
-// API service class
-class ApiService {
-  getAuthHeaders() {
-    const token = localStorage.getItem("authToken");
-    return {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
-  }
-
-  async fetchSectors() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/sectors`, {
-        headers: this.getAuthHeaders(),
-      });
-      if (!response.ok)
-        throw new Error(`Failed to fetch sectors: ${response.statusText}`);
-      return response.json();
-    } catch (error) {
-      console.error("Error fetching sectors:", error);
-      throw error;
-    }
-  }
-
-  async createSector(name) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/sectors`, {
-        method: "POST",
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify({ name }),
-      });
-      if (!response.ok)
-        throw new Error(`Failed to create sector: ${response.statusText}`);
-      return response.json();
-    } catch (error) {
-      console.error("Error creating sector:", error);
-      throw error;
-    }
-  }
-}
-
-const apiService = new ApiService();
+import { apiService, API_BASE_URL } from "@/Api/ApiService";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -73,7 +27,7 @@ const ErrorMessage = ({ message, onRetry }) => (
   </div>
 );
 
-const HomePageNew = () => {
+const HomePage = () => {
   const [sectors, setSectors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,7 +38,7 @@ const HomePageNew = () => {
       id: sector.id,
       name: sector.name,
       route: `/jobs/${sector.name.toLowerCase().replace(/\s+/g, "-")}`,
-      image: sector.image || "/placeholder.svg",
+      image: `${API_BASE_URL}${sector.image}`,
     }));
   };
 
@@ -96,6 +50,7 @@ const HomePageNew = () => {
 
       const apiSectors = await apiService.fetchSectors();
       const transformedSectors = transformSectorData(apiSectors);
+      console.log("Fetched and transformed sectors:", transformedSectors);
       setSectors(transformedSectors);
     } catch (err) {
       console.error("Failed to fetch sectors:", err);
@@ -202,4 +157,4 @@ const HomePageNew = () => {
   );
 };
 
-export default HomePageNew;
+export default HomePage;

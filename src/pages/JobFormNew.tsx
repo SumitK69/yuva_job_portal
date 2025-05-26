@@ -10,7 +10,7 @@ import { apiService } from "@/Api/ApiService";
 // Loading component
 const LoadingSpinner = () => (
   <div className="flex justify-center items-center py-4">
-    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo_dye"></div>
+    <div className="animate-spin rouonded-full h-6 w-6 border-b-2 border-indigo_dye"></div>
   </div>
 );
 
@@ -146,11 +146,10 @@ const JobFormNew = () => {
     setIsSubmitting(true);
 
     try {
-      // This would be implemented with actual API calls
-      // First, upload the resume file
-
+      // Prepare FormData for upload
       const formDataForUpload = new FormData();
       formDataForUpload.append("file", formData.resume);
+      formDataForUpload.append("name", formData.name); // Add applicant's name
 
       const uploadResponse = await fetch("/api/upload", {
         method: "POST",

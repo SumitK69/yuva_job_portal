@@ -26,7 +26,7 @@ export interface Sector {
 }
 
 // config.ts - Configuration
-const API_BASE_URL =
+export const API_BASE_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
 
 // apiService.ts - API Service

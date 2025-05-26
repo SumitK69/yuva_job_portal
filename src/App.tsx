@@ -21,7 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/jobs/:sector" element={<JobForm />} />
+          <Route path="/jobs/:sector" element={<JobFormNew />} />
           <Route path="/thankyou/:sector" element={<ThankYouPage />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

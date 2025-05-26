@@ -3,7 +3,7 @@ import React from "react";
 const Logo = () => {
   return (
     <img
-      src="../../public/assets/Yuva.PNG"
+      src="/assets/Yuva.PNG"
       alt="Yuva Logo"
       className="h-full object-contain"
     />
