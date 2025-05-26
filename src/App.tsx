@@ -10,6 +10,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import React from "react";
 import JobForm from "./pages/JobForm";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -23,7 +25,14 @@ const App = () => (
           <Route path="/jobs/:sector" element={<JobForm />} />
           <Route path="/thankyou/:sector" element={<ThankYouPage />} />
           <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
