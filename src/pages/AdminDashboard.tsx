@@ -683,7 +683,12 @@ const TempFile = () => {
                             <div className="flex items-center">
                               <span className="font-medium w-24">Phone:</span>
                               <span className="text-muted-foreground">
-                                {applicant.phone}
+                                <a
+                                  href={`tel:${applicant.phone}`}
+                                  className="text-blue-600 underline"
+                                >
+                                  {applicant.phone}
+                                </a>
                               </span>
                             </div>
                             <div className="flex items-center">
